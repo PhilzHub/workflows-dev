@@ -79,7 +79,7 @@ $ = require('jquery');
 
 (fill = function(item) {
   return $('.tagline').append("" + item);
-})('The most creative minds in Art');
+})('The most creative minds in Art 444');
 
 fill;
 
