@@ -6,21 +6,47 @@ var gulp = require('gulp'),
     connect = require('gulp-connect'),
     concat = require('gulp-concat');
 
+var env,
+    coffeeSources,
+    jsSources,
+    sassSources,
+    htmlSources,
+    jsonSources,
+    outputDir,
+    sassStyle;
+
+
+// If we've set up a NODE environment variable, we'll use it.
+// Otherwise, we'll use 'development'
+// In Terminal, we would run:
+// NODE_ENV=production gulp
+// If that doesn't work, change 'development' to 'production' below
+env = process.env.NODE_ENV || 'development';
+
+if (env === 'development') {
+  outputDir = 'builds/development/';
+  sassStyle = 'expanded';
+} else {
+  outputDir = 'builds/production/';
+  sassStyle = 'compressed';
+}
+
+
 // gulp.task('log', function() {
 //   gutil.log('Workflows are awesome');
 // });
 
-var coffeeSources = ['components/coffee/tagline.coffee'];
+coffeeSources = ['components/coffee/tagline.coffee'];
 // var coffeeSources = ['components/coffee/*.coffee'];  // any coffee files
-var jsSources = [
+jsSources = [
   'components/scripts/rclick.js',
   'components/scripts/pixgrid.js',
   'components/scripts/tagline.js',
   'components/scripts/template.js',
 ];
-var sassSources = ['components/sass/style.scss'];
-var htmlSources = ['builds/development/*.html'];
-var jsonSources = ['builds/development/js/*.json'];
+sassSources = ['components/sass/style.scss'];
+htmlSources = [outputDir + '*.html'];
+jsonSources = [outputDir + 'js/*.json'];
 
 gulp.task('coffee', function() {
   gulp.src(coffeeSources)
@@ -36,7 +62,7 @@ gulp.task('js', function() {
   gulp.src(jsSources)
     .pipe(concat('script.js'))
     .pipe(browserify())
-    .pipe(gulp.dest('builds/development/js'))
+    .pipe(gulp.dest(outputDir + 'js'))
     .pipe(connect.reload())
 });
 
@@ -45,20 +71,20 @@ gulp.task('compass', function() {
     // check out gulp-compass on npm for options
     .pipe(compass({
       comments: true,
-      css: 'builds/development/css',
+      css: outputDir + 'css',
       sass: 'components/sass',
-      image: 'builds/development/images',
-      style: 'expanded'
+      image: outputDir + 'images',
+      style: sassStyle
     }))
     .on('error', gutil.log)
-    // .pipe(gulp.dest('builds/development/css'))
+    // .pipe(gulp.dest(outputDir + 'css'))
     .pipe(connect.reload())
 
 });
 
 gulp.task('connect', function() {
   connect.server({
-    root: 'builds/development/',
+    root: outputDir,
     livereload: true
   })
 });
